@@ -1,7 +1,12 @@
-"""Pruebas de la agenda telefónica - versión 1.
+"""Pruebas de la agenda telefónica - rama con-excel.
 
-Cada prueba comprueba un comportamiento de README Decisiones v1.
+La lógica es la misma que en la versión 1.
+El guardado ahora usa data/contactos.xlsx con openpyxl:
+fila 1 = cabecera, desde fila 2 = datos.
 """
+
+from openpyxl import Workbook
+from openpyxl import load_workbook
 
 from src import agenda
 
@@ -112,20 +117,50 @@ def test_contactos_ordenados_inverso():
 
 def test_guardar_y_cargar(tmp_path):
     mi_agenda = {"Ana": "600123123", "Luis": "600111111"}
-    ruta = str(tmp_path / "contactos.txt")
+    ruta = str(tmp_path / "contactos.xlsx")
     agenda.guardar_contactos(mi_agenda, ruta)
     assert agenda.cargar_contactos(ruta) == mi_agenda
 
 
 def test_cargar_fichero_inexistente_da_vacia(tmp_path):
-    ruta = str(tmp_path / "no_existe.txt")
+    ruta = str(tmp_path / "no_existe.xlsx")
     assert agenda.cargar_contactos(ruta) == {}
 
 
-def test_cargar_ignora_lineas_malas(tmp_path):
-    ruta = str(tmp_path / "contactos.txt")
-    with open(ruta, "w", encoding="utf-8") as f:
-        f.write("Ana;600123123\nsin_separador\nLuis;600111111\n")
+def test_cargar_ignora_filas_malas(tmp_path):
+    ruta = str(tmp_path / "contactos.xlsx")
+    libro = Workbook()
+    hoja = libro.active
+    hoja.append(["nombre", "telefono"])
+    hoja.append(["Ana", "600123123"])
+    hoja.append(["SoloNombre"])
+    hoja.append(["Luis", "600111111"])
+    hoja.append([None, None])
+    libro.save(ruta)
+    libro.close()
     assert agenda.cargar_contactos(ruta) == {"Ana": "600123123", "Luis": "600111111"}
+
+
+def test_primera_fila_guarda_cabecera(tmp_path):
+    ruta = str(tmp_path / "contactos.xlsx")
+    agenda.guardar_contactos({"Ana": "600123123"}, ruta)
+    libro = load_workbook(ruta)
+    hoja = libro.active
+    cabecera = [hoja.cell(row=1, column=1).value, hoja.cell(row=1, column=2).value]
+    libro.close()
+    assert cabecera == ["nombre", "telefono"]
+
+
+def test_telefono_se_guarda_como_texto(tmp_path):
+    ruta = str(tmp_path / "contactos.xlsx")
+    agenda.guardar_contactos({"Ana": "600123123"}, ruta)
+    libro = load_workbook(ruta)
+    hoja = libro.active
+    celda = hoja.cell(row=2, column=2)
+    valor = str(celda.value)
+    formato = celda.number_format
+    libro.close()
+    assert valor == "600123123"
+    assert formato == "@"
 
 

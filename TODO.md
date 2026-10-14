@@ -1,7 +1,8 @@
  # Plan y tareas
 
-## En curso
-- [ ] Validar versión 1 con `pytest` instalado (falta `pip` en este equipo).
+## En curso (rama `con-excel`)
+- [ ] Validar rama `con-excel` con `pytest` instalado (falta `pip` en este equipo).
+- [ ] Revisar documentación de la rama `con-excel`.
 
 ## Pendientes
 - [ ] Inicializar Git (hacer el primer commit).
@@ -23,3 +24,6 @@
 - [x] Validar: nombre no vacío, teléfono solo dígitos de 9 a 15 cifras.
 - [x] Probar menú y lógica con verificación no interactiva (E2E OK).
 - [x] Revisar `.gitignore` y no subir `__pycache__/` ni `data/contactos.txt` (quitada línea `xlsx`).
+- [x] [Rama `con-excel`] Guardar/cargar en `data/contactos.xlsx` con `openpyxl`: fila 1 cabecera, desde fila 2 datos, teléfono como texto, sin migración del `.txt`.
+- [x] [Rama `con-excel`] Pruebas Excel: guardar/cargar, fichero inexistente, filas malas, cabecera y teléfono como texto.
+- [x] [Rama `con-excel`] `.gitignore` ignora `data/contactos.xlsx`.

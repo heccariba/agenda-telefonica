@@ -1,5 +1,15 @@
 # Historial de cambios
 
+## [Rama con-excel - sin publicar]
+### Añadido
+- Dependencia `openpyxl` en `requirements.txt` para leer/escribir `.xlsx` (un Excel no es texto plano y Python no lo maneja de serie).
+- Guardado en `data/contactos.xlsx` (hoja `Contactos`): fila 1 cabecera `nombre,telefono`, desde fila 2 un contacto por fila, teléfono como texto.
+- Pruebas Excel: cabecera en fila 1 y teléfono guardado como texto.
+### Cambiado
+- `RUTA_DATOS` pasa de `data/contactos.txt` a `data/contactos.xlsx`. Sin migración ni compatibilidad con el `.txt`.
+- `.gitignore` ahora ignora `data/contactos.xlsx` en vez de `data/contactos.txt`.
+- Pruebas de fichero adaptadas de líneas `nombre;telefono` a filas Excel (incluye ignorar filas incompletas).
+
 ## [Sin publicar]
 ### Añadido
 - Estructura inicial del proyecto.

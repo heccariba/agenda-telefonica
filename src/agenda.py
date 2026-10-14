@@ -1,10 +1,17 @@
-"""Agenda telefónica - versión 1.
+"""Agenda telefónica - rama con-excel.
 
 Gestiona contactos (nombre -> teléfono) desde la consola.
-Guarda los datos en data/contactos.txt con formato nombre;telefono.
+Guarda los datos en data/contactos.xlsx:
+fila 1 = cabecera ("nombre", "telefono"), desde fila 2 = datos.
 """
 
-RUTA_DATOS = "data/contactos.txt"
+from openpyxl import Workbook
+from openpyxl import load_workbook
+
+RUTA_DATOS = "data/contactos.xlsx"
+NOMBRE_HOJA = "Contactos"
+TITULO_NOMBRE = "nombre"
+TITULO_TELEFONO = "telefono"
 OPCION_SALIR = "0"
 LONG_MIN_TELEFONO = 9
 LONG_MAX_TELEFONO = 15
@@ -130,29 +137,44 @@ def mostrar_todos(agenda, inverso=False):
         print(nombre + " - " + telefono)
 
 
+def fila_es_vacia(nombre, telefono):
+    """Devuelve True si la fila no tiene ni nombre ni teléfono."""
+    texto_nombre = "" if nombre is None else str(nombre).strip()
+    texto_telefono = "" if telefono is None else str(telefono).strip()
+    return texto_nombre == "" and texto_telefono == ""
+
+
 def cargar_contactos(ruta=RUTA_DATOS):
-    """Carga contactos desde ruta. Si no existe, devuelve agenda vacía."""
+    """Carga contactos desde un Excel. Si no existe, devuelve agenda vacía."""
     agenda = {}
     try:
-        with open(ruta, "r", encoding="utf-8") as fichero:
-            for linea in fichero:
-                linea = linea.strip()
-                if not linea:
-                    continue
-                partes = linea.split(";")
-                if len(partes) != 2:
-                    continue
-                anadir_contacto(agenda, partes[0].strip(), partes[1].strip())
+        libro = load_workbook(ruta)
     except FileNotFoundError:
         return {}
+    hoja = libro.active
+    for fila in hoja.iter_rows(min_row=2, values_only=True):
+        nombre = "" if fila[0] is None else str(fila[0]).strip()
+        telefono = "" if len(fila) < 2 or fila[1] is None else str(fila[1]).strip()
+        if fila_es_vacia(nombre, telefono):
+            continue
+        anadir_contacto(agenda, nombre, telefono)
+    libro.close()
     return agenda
 
 
 def guardar_contactos(agenda, ruta=RUTA_DATOS):
-    """Guarda la agenda en ruta con formato nombre;telefono."""
-    with open(ruta, "w", encoding="utf-8") as fichero:
-        for nombre, telefono in agenda.items():
-            fichero.write(nombre + ";" + telefono + "\n")
+    """Guarda la agenda en Excel: fila 1 cabecera, desde fila 2 datos."""
+    libro = Workbook()
+    hoja = libro.active
+    hoja.title = NOMBRE_HOJA
+    hoja.append([TITULO_NOMBRE, TITULO_TELEFONO])
+    for nombre, telefono in agenda.items():
+        hoja.append([nombre, str(telefono)])
+    # Guardar el teléfono como texto para no perder ceros iniciales.
+    for fila in hoja.iter_rows(min_row=2, max_col=2):
+        fila[1].number_format = "@"
+    libro.save(ruta)
+    libro.close()
 
 
 def opcion_anadir(agenda):

@@ -53,3 +53,19 @@ Implementar la versión 1 aprobada (solo funciones, sin clases).
 ### Pendiente
 - Instalar `pip`/`pytest` y ejecutar `pytest` en verde.
 - Primer commit Git.
+
+## Sesión 4 - 2026-10-13 (rama con-excel)
+### Objetivo
+Guardar la agenda en `data/contactos.xlsx` con `openpyxl`, sin migrar datos del `.txt`.
+
+### Realizado
+- `requirements.txt`: añadida dependencia `openpyxl` (un `.xlsx` no es texto plano y Python no lo lee de serie).
+- `src/agenda.py`: `RUTA_DATOS` a `data/contactos.xlsx`, constantes `NOMBRE_HOJA`, `TITULO_NOMBRE`, `TITULO_TELEFONO`; reescritas solo `cargar_contactos` y `guardar_contactos` (fila 1 cabecera, desde fila 2 datos, teléfono como texto); añadida ayuda `fila_es_vacia`.
+- `tests/test_agenda.py`: adaptadas 3 pruebas de fichero a `.xlsx` y añadidas 2 nuevas (cabecera en fila 1 y teléfono como texto).
+- `.gitignore`: ignora `data/contactos.xlsx` en vez de `data/contactos.txt`.
+- `README.md`, `TODO.md`, `CHANGELOG.md`: documentado formato Excel y dependencia.
+
+### Comprobaciones
+- `py_compile src/agenda.py tests/test_agenda.py` → OK.
+- `python -m pytest` → pendiente: no hay `pip`/`pytest`/`openpyxl` en este equipo (el `import src.agenda` falla con `No module named 'openpyxl'` hasta instalar `requirements.txt`).
+- `git status` en `con-excel` → limpio de datos: solo 8 ficheros modificados, sin `data/` sin seguimiento.
